@@ -115,8 +115,12 @@ def get_latest(driver,url_to_scrape,historic_data):
     
     driver.get(url_to_scrape)
     
+
+    ## faced problems with datatype from db (float, datetime) vs object
+    
     historic_data['Date_unique'] = historic_data.index
     historic_data = historic_data.astype(object)
+
     
     latest_table = pd.DataFrame()
     new_data = pd.DataFrame()
@@ -143,19 +147,33 @@ def get_latest(driver,url_to_scrape,historic_data):
         table_df = table_df.set_index('Date')
         table_df=table_df[table_df.nunique(1)>1]
         latest_table = pd.concat([latest_table,table_df],axis=0)
+
+
+    ## cleaning up the mess in tables, normalising formats. This can be improved, but we get the required output for now
     
-        
     latest_table_no_dups = latest_table
+    latest_table_no_dups.index = pd.to_datetime(latest_table_no_dups.index)
     latest_table_no_dups['Date_unique'] = latest_table_no_dups.index
     latest_table_no_dups = latest_table_no_dups.drop_duplicates()
+    latest_table_no_dups = latest_table_no_dups.astype(object)
     latest_table_no_dups.columns = historic_data.columns
-       
-    merge = latest_table_no_dups.merge(historic_data, how='left', indicator=True)
-    new_data =merge[merge._merge == 'left_only'].iloc[:,:-1]
+
+    ## to avoid complications during compare, created a "key" combining date, ISIN & securitydescription
+
+    historic_data['combined'] = list(zip(historic_data.Date_unique, historic_data.ISIN, historic_data.SecurityDescription))
+    latest_table_no_dups['combined'] = list(zip(latest_table_no_dups.Date_unique, latest_table_no_dups.ISIN, latest_table_no_dups.SecurityDescription))
+
+
+    ## instead of using sql to insert unique values, trying to get python to do the job
+    ## this can be simplified if we use primary key in sql db and INSERT
+           
+    merge = pd.DataFrame(latest_table_no_dups['combined']).merge(pd.DataFrame(historic_data['combined']), how='left', indicator=True)
+    data2keep =merge[merge._merge == 'left_only'].iloc[:,:-1]
+    new_data = latest_table_no_dups.loc[latest_table_no_dups['combined'].isin(data2keep['combined'])]
     new_data['Date'] = new_data['Date_unique']
     new_data = new_data.set_index('Date')
-    new_data = new_data.drop(columns='Date_unique')
-
+    new_data = new_data.drop(columns=['Date_unique','combined'])
+    
     return new_data
 
 def get_data_from_db():
