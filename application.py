@@ -17,13 +17,27 @@ from dash.dependencies import Input, Output
 import plotly.express as px
 
 import pandas as pd
-import webscrape as wb
+import pyodbc
 
 external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
 
 
-historic_data = wb.get_data_from_db()
+"""Params
+return: data stored in the DB
+"""        
+server = 'tcp:akash-test.database.windows.net'
+database = 'web_scrape'
+username = 'admin_1'
+password = 'AkashTillu123!' 
+conn = pyodbc.connect('DRIVER={ODBC Driver 17 for SQL Server};SERVER='+server+';DATABASE='+database+';UID='+username+';PWD='+ password) 
+
+print('connection established')
+
+query = 'SELECT * FROM dbo.SecurityHoldings'
+historic_data = pd.read_sql(query, conn,index_col='Date')
+historic_data = historic_data.sort_index()
+
 df_choose = historic_data[['ISIN','AggregateHoldingOfFPIS']]
 df_choose['As_of_Date'] = df_choose.index
 df_choose_grp = df_choose.groupby(['ISIN','As_of_Date'], as_index=False)['AggregateHoldingOfFPIS'].sum()
