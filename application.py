@@ -20,8 +20,9 @@ import pandas as pd
 import pyodbc
 
 external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
-app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
-application = app.server
+dash_app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
+app = dash_app.server
+
 
 """Params
 return: data stored in the DB
@@ -44,7 +45,7 @@ df_choose_grp = df_choose.groupby(['ISIN','As_of_Date'], as_index=False)['Aggreg
 df_choose_grp = df_choose_grp.set_index('As_of_Date')
 
 
-app.layout = html.Div([
+dash_app.layout = html.Div([
 
     html.Div([dcc.Graph(id='indicator-graphic'),
 
@@ -56,7 +57,7 @@ app.layout = html.Div([
 ])
 
 
-@app.callback(
+@dash_app.callback(
     Output('indicator-graphic','figure'),
     [Input('ISIN','value')]
 )
@@ -72,4 +73,4 @@ def build_graph(ISIN):
 
 
 if __name__ == '__main__':
-    app.run_server(debug=True)
+    dash_app.run_server(debug=True)
