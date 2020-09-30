@@ -21,7 +21,7 @@ import pyodbc
 
 external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
-
+application = app.server
 
 """Params
 return: data stored in the DB

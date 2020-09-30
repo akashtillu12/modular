@@ -1,1 +1,1 @@
-00 * * * * /usr/bin/python3 /home/akash/git_environment/modular/webscrape_ubuntu.py> /home/someuser/cronlogs/webscrape.log
+00 * * * * /usr/bin/python3 /home/akash/git_environment/modular/webscrape_ubuntu.py> /home/akash/cronlogs/webscrape.log
