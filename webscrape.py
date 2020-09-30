@@ -116,6 +116,7 @@ def get_latest(driver,url_to_scrape,historic_data):
     driver.get(url_to_scrape)
     
     historic_data['Date_unique'] = historic_data.index
+    historic_data = historic_data.astype(object)
     
     latest_table = pd.DataFrame()
     new_data = pd.DataFrame()
@@ -168,7 +169,6 @@ def get_data_from_db():
     query = 'SELECT * FROM dbo.SecurityHoldings'
     historic_data = pd.read_sql(query, conn,index_col='Date')
     historic_data = historic_data.sort_index()
-    historic_data = historic_data.astype(object)
     
     return historic_data
 
