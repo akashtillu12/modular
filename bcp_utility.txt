@@ -1,0 +1,3 @@
+Bulk insert files from data_upload.txt
+
+C:\Users\Akash>bcp web_scrape.dbo.SecurityHoldings in D:\Modular\data_upload.txt -U admin_1@akash-test -S tcp:akash-test.database.windows.net -P AkashTillu123! -c
